@@ -1,0 +1,71 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "prefix" : {
+          "type" : "string",
+          "defaultValue" : "prod"
+    },
+    "postfix" : {
+      "type" : "string",
+      "defaultValue" : "[take(uniqueString(resourceGroup().id), 5)]"
+    },
+      "storageMidName" : {
+        "type" : "string",
+        "defaultValue" : "azhani"
+    },
+    "storageName": {
+      "type": "string",
+      "defaultValue" : "[concat(parameters('prefix'), parameters('storageMidName'), parameters('postfix'))]",
+      "minLength": 3,
+      "maxLength": 24
+    },
+    "storageSKU": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Standard_ZRS",
+        "Premium_LRS",
+        "Premium_ZRS",
+        "Standard_GZRS",
+        "Standard_RAGZRS"
+      ]
+     },
+     "Container1Name" : {
+        "type" : "string",
+        "defaultValue" : "firstcontainer"
+     }
+    },
+    "functions": [],
+    "variables": {},
+    "resources": [{
+        "name": "[parameters('storageName')]",
+        "type": "Microsoft.Storage/storageAccounts",
+        "apiVersion": "2021-04-01",
+        "tags": {
+            "displayName": "storageaccount1"
+        },
+        "location": "[resourceGroup().location]",
+        "kind": "StorageV2",
+        "sku": {
+          "name": "[parameters('storageSKU')]"
+        },
+        "properties": {},
+        "resources": [
+        {
+            "type": "blobServices/containers",
+            "apiVersion": "2018-03-01-preview",
+            "name": "[concat('default/', parameters('Container1Name'))]",
+            "dependsOn": [
+                "[parameters('storageName')]"
+            ],
+            "properties": {
+                "publicAccess": "Container"
+            }
+        }]
+    }],
+    "outputs": {}
+}
